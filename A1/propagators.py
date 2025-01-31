@@ -101,7 +101,21 @@ def prop_FC(csp, newVar=None):
        only one uninstantiated Variable. Remember to keep
        track of all pruned Variable,value pairs and return '''
     #IMPLEMENT
-    pass
+    pruned = []
+    constraints = csp.get_all_cons() if newVar is None else csp.get_cons_with_var(newVar)
+
+    for c in constraints:
+        # If only one variable is left unassigned
+        if c.get_n_unasgn() == 1:
+            unassigned_var = c.get_unasgn_vars()[0]
+            for val in unassigned_var.cur_domain():
+                if not c.check_var_val(unassigned_var, val):
+                    unassigned_var.prune_value(val)
+                    pruned.append((unassigned_var, val))
+            # If a dead end is found
+            if unassigned_var.cur_domain_size() == 0:
+                return False, pruned
+    return True, pruned
 
 
 def prop_GAC(csp, newVar=None):
@@ -109,4 +123,21 @@ def prop_GAC(csp, newVar=None):
        processing all constraints. Otherwise we do GAC enforce with
        constraints containing newVar on GAC Queue'''
     #IMPLEMENT
-    pass
+    pruned = []
+    gac_queue = csp.get_all_cons() if newVar is None else csp.get_cons_with_var(newVar)
+
+    # Processes constraints iteratively until all possible GAC pruning is complete
+    while gac_queue:
+        c = gac_queue.pop(0)
+        for var in c.get_scope():
+            for val in var.cur_domain():
+                if not c.check_var_val(var, val):
+                    var.prune_value(val)
+                    pruned.append((var, val))
+                    # If a dead end is found
+                    if var.cur_domain_size() == 0:
+                        return False, pruned
+                    for related_c in csp.get_cons_with_var(var):
+                        if related_c not in gac_queue:
+                            gac_queue.append(related_c)
+    return True, pruned
