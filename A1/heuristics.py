@@ -60,4 +60,16 @@ def ord_dh(csp):
 def ord_mrv(csp):
     ''' return Variable to be assigned according to the Minimum Remaining Values heuristic '''
     # IMPLEMENT
-    pass
+        varlist = csp.get_all_unasgn_vars()
+    print(varlist)
+    nextvar = varlist[0]
+    lowestvalue = (varlist[0]).cur_domain_size()
+
+    # remembers the var with the smallest current domain
+    for var in varlist:
+        value = var.cur_domain_size()
+        if lowestvalue > value:
+            lowestvalue = value
+            nextvar = var
+
+    return nextvar
