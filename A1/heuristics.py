@@ -37,22 +37,25 @@ var_ordering == a function with the following template
    '''
 
 def ord_dh(csp):
-    ''' return next Variable to be assigned according to the Degree Heuristic '''
+    ''' Return the next variable to be assigned according to the Degree Heuristic '''
     # IMPLEMENT
-   varlist = csp.get_all_unasgn_vars()
-    maxdegree = 0
+    varlist = csp.get_all_unasgn_vars()
+    maxdegree = -1  
+    nextvar = None
 
-    # For each variable, check the constraints it is in.
     for var in varlist:
         degreeset = set()
         conlist = csp.get_cons_with_var(var)
-        # for each constraint it is in, checks which variables it affects, and adds them to a set.
-        for cons in conlist:
-            degreeset.update(cons.get_unasgn_vars())
 
-        # remembers the variable with the greatest degree, compares it to the degree of checked variable.
+        for cons in conlist:
+            degreeset.update(v for v in cons.get_unasgn_vars() if v != var)
+
         degree = len(degreeset)
+
         if degree > maxdegree:
+            maxdegree = degree
+            nextvar = var
+        elif degree == maxdegree and nextvar is None:
             nextvar = var
 
     return nextvar
@@ -60,7 +63,7 @@ def ord_dh(csp):
 def ord_mrv(csp):
     ''' return Variable to be assigned according to the Minimum Remaining Values heuristic '''
     # IMPLEMENT
-        varlist = csp.get_all_unasgn_vars()
+    varlist = csp.get_all_unasgn_vars()
     print(varlist)
     nextvar = varlist[0]
     lowestvalue = (varlist[0]).cur_domain_size()
